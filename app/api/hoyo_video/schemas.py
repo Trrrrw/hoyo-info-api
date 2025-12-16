@@ -47,7 +47,7 @@ class VideoTypeInfo(BaseModel):
     type_name: str = Field(
         ...,
         description="类型名称",
-        examples=["全部视频", "角色演示", "拾枝杂谈", "其他"],
+        examples=["全部视频", "角色演示", "其他"],
     )
     cover: str = Field(
         ...,

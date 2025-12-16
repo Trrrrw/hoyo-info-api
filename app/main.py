@@ -29,7 +29,12 @@ def start_app():
         app.add_middleware(TrafficLogMiddleware)
     app.include_router(api_router)
 
-    mcp = FastApiMCP(app)
+    mcp = FastApiMCP(
+        app,
+        name="Hoyo Info MCP",
+        description="用来获取米哈游游戏官方资讯的 MCP 服务器",
+        exclude_tags=["System"],
+    )
     mcp.mount_http()
     mcp.mount_sse()
 

@@ -2,6 +2,7 @@ import time
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from loguru import logger
+from urllib.parse import unquote
 
 
 class TrafficLogMiddleware(BaseHTTPMiddleware):
@@ -17,13 +18,16 @@ class TrafficLogMiddleware(BaseHTTPMiddleware):
         # 3. 构造日志内容
         # 排除不需要记录的路径（例如 health check 或 metrics）
         if request.url.path != "/health":
-            log_msg = (
-                f"Client: {request.client.host} | "  # pyright: ignore[reportOptionalMemberAccess]
-                f"Method: {request.method} | "
-                f"Path: {request.url.path} | "
-                f"Status: {response.status_code} | "
-                f"Time: {process_time:.2f}ms"
-            )
+            parts = [
+                f"Client: {request.client.host}",  # pyright: ignore[reportOptionalMemberAccess]
+                f"Method: {request.method}",
+                f"Path: {request.url.path}",
+            ]
+            if request.url.query:
+                parts.append(f"Params: {unquote(request.url.query)}")
+            parts.append(f"Status: {response.status_code}")
+            parts.append(f"Time: {process_time:.2f}ms")
+            log_msg = " | ".join(parts)
 
             # 根据状态码决定日志级别
             if response.status_code >= 500:
