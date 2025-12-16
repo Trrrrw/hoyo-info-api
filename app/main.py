@@ -10,7 +10,7 @@ from core.config import setup_logger, settings
 from middleware.logging import TrafficLogMiddleware
 from api import api_router
 
-app = FastAPI()
+app = FastAPI(title="HOYO-INFO-API")
 SERVER = None
 
 

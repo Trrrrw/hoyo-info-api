@@ -68,9 +68,11 @@ async def list_videos(
     all_data: bool = Query(False, alias="all", description="是否获取全部"),
 ):
     try:
-        videos = await services.list_videos(game, type, page, page_size, all_data)
+        total, videos = await services.list_videos(
+            game, type, page, page_size, all_data
+        )
         return {
-            "total": len(videos),
+            "total": total,
             "items": videos,
         }
     except Exception as e:

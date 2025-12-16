@@ -109,12 +109,13 @@ async def list_videos(
     page: int,
     page_size: int,
     all_data: bool,
-) -> list[schemas.VideoInfo]:
+) -> tuple[int, list[schemas.VideoInfo]]:
     data = await load_data()
     game_data = data.get("data", {}).get(game, {})
     video_list = game_data.get("videos", [])
+    total = len(video_list)
     if not game_data or not video_list:
-        return []
+        return 0, []
 
     if type == "全部视频":
         filtered_videos = video_list
@@ -141,7 +142,7 @@ async def list_videos(
         video_info = schemas.VideoInfo(**video)
         result_videos.append(video_info)
 
-    return result_videos
+    return total, result_videos
 
 
 async def get_video_detail(game: str, video_id: int) -> schemas.VideoInfo | None:
