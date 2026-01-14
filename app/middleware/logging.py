@@ -19,7 +19,7 @@ class TrafficLogMiddleware(BaseHTTPMiddleware):
         # 排除不需要记录的路径（例如 health check 或 metrics）
         if request.url.path != "/health":
             parts = [
-                f"Client: {request.client.host}",  # pyright: ignore[reportOptionalMemberAccess]
+                f"Client: {request.client.host}",  # type: ignore
                 f"Method: {request.method}",
                 f"Path: {request.url.path}",
             ]

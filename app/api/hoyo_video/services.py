@@ -113,7 +113,6 @@ async def list_videos(
     data = await load_data()
     game_data = data.get("data", {}).get(game, {})
     video_list = game_data.get("videos", [])
-    total = len(video_list)
     if not game_data or not video_list:
         return 0, []
 
@@ -129,6 +128,7 @@ async def list_videos(
         ),
         reverse=True,
     )
+    total = len(sorted_videos)
 
     if all_data:
         paged_videos = sorted_videos

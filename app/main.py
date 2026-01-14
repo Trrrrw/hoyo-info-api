@@ -6,9 +6,9 @@ from fastapi_mcp import FastApiMCP
 from fastapi.responses import RedirectResponse
 from loguru import logger
 
-from core.config import setup_logger, settings
-from middleware.logging import TrafficLogMiddleware
-from api import api_router
+from app.core.config import setup_logger, settings
+from app.middleware.logging import TrafficLogMiddleware
+from app.api import api_router
 
 app = FastAPI(title="HOYO-INFO-API")
 SERVER = None
@@ -26,13 +26,14 @@ async def health_check():
 
 def start_app():
     if settings.DEBUG:
-        app.add_middleware(TrafficLogMiddleware)
+        app.add_middleware(TrafficLogMiddleware)  # type: ignore
     app.include_router(api_router)
 
+    # 用来获取米哈游游戏官方资讯的 MCP 服务器
     mcp = FastApiMCP(
         app,
         name="Hoyo Info MCP",
-        description="用来获取米哈游游戏官方资讯的 MCP 服务器",
+        description="0.1.0",
         exclude_tags=["System"],
     )
     mcp.mount_http()
