@@ -253,7 +253,12 @@ async def get_ics(
 ):
     try:
         ics_path = await services.get_ics_path(game, data_type)
-        return FileResponse(path=ics_path, filename=f"{game}{data_type}日历.ics")
+        return FileResponse(
+            path=ics_path,
+            filename=f"{game}{data_type}日历.ics",
+            media_type="text/calendar",
+            content_disposition_type="attachment",
+        )
     except KeyError:
         logger.error(f"游戏 {game} 或事件类型 {data_type} 不存在")
         raise HTTPException(
