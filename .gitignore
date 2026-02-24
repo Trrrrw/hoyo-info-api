@@ -9,9 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
-data/
-logs/
-.env
-*.tar
+.temp/
+.logs/
 .vscode/
 .zed/
+.env
+*.tar

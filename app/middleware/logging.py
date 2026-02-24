@@ -19,14 +19,14 @@ class TrafficLogMiddleware(BaseHTTPMiddleware):
         # 排除不需要记录的路径（例如 health check 或 metrics）
         if request.url.path != "/health":
             parts = [
-                f"Client: {request.client.host}",  # type: ignore
-                f"Method: {request.method}",
-                f"Path: {request.url.path}",
+                request.client.host,
+                request.method,
+                str(response.status_code),
+                f"{process_time:.2f}ms",
+                request.url.path,
             ]
             if request.url.query:
-                parts.append(f"Params: {unquote(request.url.query)}")
-            parts.append(f"Status: {response.status_code}")
-            parts.append(f"Time: {process_time:.2f}ms")
+                parts.append(str(unquote(request.url.query)))
             log_msg = " | ".join(parts)
 
             # 根据状态码决定日志级别

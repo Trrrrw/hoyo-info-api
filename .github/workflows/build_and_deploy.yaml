@@ -57,6 +57,6 @@ jobs:
               --name api \
               --restart unless-stopped \
               -p 2345:8888 \
-              -v /root/Trrrrw/api/data:/app/data \
+              -v /root/Trrrrw/api/data:/src/.temp/data \
               ghcr.io/trrrrw/hoyo-info-api:latest
             docker image prune -af || true

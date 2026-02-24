@@ -1,6 +1,5 @@
 # 具体的业务逻辑
 import os
-import json
 import aiofiles
 from pathlib import Path
 from datetime import datetime
@@ -8,48 +7,16 @@ from loguru import logger
 from pydantic import ValidationError
 
 from . import schemas
-
-DATA_FILE = Path("data/hoyo_video/data.json")
-DATA_FILE_LAST_MTIME = None
-DATA_CACHE = None
-
-
-async def load_data() -> dict:
-    global DATA_CACHE, DATA_FILE_LAST_MTIME
-
-    try:
-        mtime = os.path.getmtime(DATA_FILE)
-    except OSError:
-        logger.warning(f"数据文件不存在或无法访问: {DATA_FILE}")
-        return {}
-    if mtime == DATA_FILE_LAST_MTIME and DATA_CACHE is not None:
-        logger.debug(f"数据文件未更改，跳过加载: {DATA_FILE}")
-        return DATA_CACHE
-    logger.info(f"加载数据文件: {DATA_FILE}")
-    try:
-        async with aiofiles.open(DATA_FILE, "r", encoding="utf-8") as f:
-            content = await f.read()
-            if not content:
-                return {}
-            DATA_CACHE = json.loads(content)
-            DATA_FILE_LAST_MTIME = mtime
-            return DATA_CACHE
-    except Exception as e:
-        logger.error(f"加载数据失败: {e}")
-        if DATA_CACHE is not None:
-            return DATA_CACHE
-        raise e
+from .data import data
 
 
 async def get_update_time() -> str:
-    data = await load_data()
-    return data.get("update_time", "1970-01-01 08:00:00.000000")
+    return data.all_data.get("update_time", "1970-01-01 08:00:00.000000")
 
 
 async def list_games() -> list[schemas.GameInfo]:
-    data = await load_data()
     game_list = []
-    raw_data = data.get("data", {})
+    raw_data = data.all_data.get("data", {})
     for game_name, game_data in raw_data.items():
         game_list.append(
             schemas.GameInfo(
@@ -63,8 +30,7 @@ async def list_games() -> list[schemas.GameInfo]:
 
 
 async def list_video_types(game: str) -> list[schemas.TypeListResponse]:
-    data = await load_data()
-    game_data = data.get("data", {}).get(game, {})
+    game_data = data.all_data.get("data", {}).get(game, {})
     video_list = game_data.get("videos", [])
     if not game_data or not video_list:
         return []
@@ -110,8 +76,7 @@ async def list_videos(
     page_size: int,
     all_data: bool,
 ) -> tuple[int, list[schemas.VideoInfo]]:
-    data = await load_data()
-    game_data = data.get("data", {}).get(game, {})
+    game_data = data.all_data.get("data", {}).get(game, {})
     video_list = game_data.get("videos", [])
     if not game_data or not video_list:
         return 0, []
@@ -146,8 +111,7 @@ async def list_videos(
 
 
 async def get_video_detail(game: str, video_id: int) -> schemas.VideoInfo | None:
-    data = await load_data()
-    game_data = data.get("data", {}).get(game, {})
+    game_data = data.all_data.get("data", {}).get(game, {})
     video_list = game_data.get("videos", [])
     for video in video_list:
         if video.get("id") == video_id:
@@ -156,11 +120,10 @@ async def get_video_detail(game: str, video_id: int) -> schemas.VideoInfo | None
 
 
 async def search_videos(q: str, game: str) -> list[schemas.VideoInfo]:
-    data = await load_data()
     results: list[tuple[int, schemas.VideoInfo]] = []
 
     query_list = q.lower().strip().split()
-    raw_data = data.get("data", {})
+    raw_data = data.all_data.get("data", {})
 
     target_games = [game] if game != "全部游戏" else raw_data.keys()
     for game_name in target_games:

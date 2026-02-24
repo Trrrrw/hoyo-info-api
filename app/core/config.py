@@ -1,61 +1,23 @@
-import os
-import sys
-
-from loguru import logger
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def setup_logger() -> None:
-    """
-    初始化日志
-    """
-    os.makedirs("logs", exist_ok=True)
-    logger.remove()
+class AppConfig(BaseSettings):
+    """使用 pydantic_settings 管理项目配置"""
 
-    format = (
-        "<level>[{level: <7}]</level> "
-        "<level>{message}</level> "
-        "<<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan>> "
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> "
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,  # 环境变量不区分大小写
+        extra="ignore",  # 忽略未定义的字段
     )
 
-    logger.add(
-        "logs/app.log",
-        format=format,
-        colorize=False,
-        enqueue=False,
-        rotation="1 day",
-        retention="7 days",
-        compression="zip",
-        encoding="utf-8",
-    )
-    logger.add(
-        "logs/error.log",
-        level="ERROR",
-        filter=lambda record: record["level"].no >= 30,
-        format=format,
-        colorize=False,
-        enqueue=False,
-        rotation="1 day",
-        retention="7 days",
-        compression="zip",
-        encoding="utf-8",
-    )
-    logger.add(
-        sys.stderr,
-        format=format,
-        colorize=True,
-        enqueue=False,
-    )
+    debug: bool = Field(default=False, description="调试模式")
+    log_level: str = Field(default="INFO", description="日志级别")
+    host: str = Field(default="0.0.0.0", description="主机地址")
+    port: int = Field(default=8888, description="端口号")
+    data_dir: Path = Field(default=Path(".temp/data"), description="数据目录")
 
 
-class Settings(BaseSettings):
-    DEBUG: bool = False
-    HOST: str = "0.0.0.0"
-    PORT: int = 8888
-
-    class Config:
-        env_file = ".env"
-
-
-settings = Settings()
+app_config = AppConfig()

@@ -1,6 +1,11 @@
+import importlib
+import pkgutil
 from fastapi import APIRouter
-from .hoyo_video.router import router as hoyo_router
 
 api_router = APIRouter()
 
-api_router.include_router(hoyo_router, prefix="/hoyo_video")
+for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+    module = importlib.import_module(f".{module_name}.router", package=__package__)
+
+    if hasattr(module, "router"):
+        api_router.include_router(module.router, prefix=f"/{module_name}")
