@@ -51,3 +51,4 @@ async def get_ics_path(game: str, data_type: str) -> str:
     ics_path = game_data.get(data_type, None)
     if not Path(ics_path).exists():
         raise FileNotFoundError(f"ICS file {ics_path} not found")
+    return ics_path

@@ -1,6 +1,6 @@
 # 路由逻辑
 from fastapi import APIRouter, HTTPException, Path, Query
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from loguru import logger
 
 from . import services, schemas
@@ -131,7 +131,7 @@ async def search_videos(
     "/{game}/rss",
     responses={
         200: {
-            "content": {"application/xml": {}},
+            "content": {"application/rss+xml": {}},
             "description": "RSS XML content",
         }
     },
@@ -140,10 +140,8 @@ async def search_videos(
 )
 async def get_rss(game: str):
     try:
-        rss_content = await services.get_rss(game)
-        if not rss_content:
-            raise HTTPException(status_code=404, detail=f"RSS for {game} not found")
-        return Response(content=rss_content, media_type="application/xml")
+        rss_path = await services.get_rss_path(game)
+        return FileResponse(rss_path, media_type="application/rss+xml")
     except HTTPException:
         raise
     except Exception as e:

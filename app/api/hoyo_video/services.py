@@ -177,3 +177,7 @@ async def get_rss(game: str) -> bytes | None:
         if game in RSS_CACHE:
             return RSS_CACHE[game]
         raise e
+
+
+async def get_rss_path(game: str) -> str:
+    return data.rss.get(game, "")
