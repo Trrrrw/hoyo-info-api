@@ -24,7 +24,8 @@ class HoyoCalendarData(BaseData):
                 file_type_data[game][data_type] = data
                 f.close()
             case "ics":
-                file_type_data[game][data_type] = file_path
+                abs_path = str(file_path.resolve())
+                file_type_data[game][data_type] = abs_path
 
     def on_file_deleted(self, file_path: Path) -> None:
         relative_path = file_path.relative_to(self.watch_dir)

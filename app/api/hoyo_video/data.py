@@ -14,7 +14,8 @@ class HoyoVideoData(BaseData):
             if not hasattr(self, "rss"):
                 setattr(self, "rss", {})
             rss_data = getattr(self, "rss")
-            rss_data[file_path.stem] = file_path
+            abs_path = str(file_path.resolve())
+            rss_data[file_path.stem] = abs_path
 
     def on_file_deleted(self, file_path: Path) -> None:
         if file_path.name == "data.json":

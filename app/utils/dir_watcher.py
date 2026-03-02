@@ -34,15 +34,6 @@ class DirectoryChangeHandler(FileSystemEventHandler):
         self.on_file_deleted(Path(event.src_path))
         self.load_file(Path(event.dest_path))
 
-    def on_any_event(self, event: FileSystemEvent) -> None:
-        try:
-            self.on_file_deleted(Path(event.src_path))
-        except:
-            pass
-        try:
-            self.load_file(Path(event.dest_path))
-        except:
-            pass
 
 class DirWatcher:
     def __init__(

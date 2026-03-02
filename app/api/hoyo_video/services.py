@@ -180,4 +180,5 @@ async def get_rss(game: str) -> bytes | None:
 
 
 async def get_rss_path(game: str) -> str:
-    return data.rss.get(game, "")
+    rss_path = data.rss.get(game, "")
+    return str(rss_path) if rss_path else ""
