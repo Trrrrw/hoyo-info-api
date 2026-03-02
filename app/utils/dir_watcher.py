@@ -39,7 +39,10 @@ class DirectoryChangeHandler(FileSystemEventHandler):
             self.on_file_deleted(Path(event.src_path))
         except:
             pass
-        self.load_file(Path(event.dest_path))
+        try:
+            self.load_file(Path(event.dest_path))
+        except:
+            pass
 
 class DirWatcher:
     def __init__(
