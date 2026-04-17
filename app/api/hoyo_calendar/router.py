@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Path, Query, status
 from fastapi.responses import FileResponse
 
 from app.utils.logger import get_logger
-from . import services, schemas
+
+from . import schemas, services
 
 router = APIRouter(tags=["游戏日历订阅"])
 logger = get_logger("API_CAL")
@@ -171,6 +172,44 @@ async def get_event_data(
         )
     except Exception as e:
         logger.error(f"获取游戏事件数据异常: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal Server Error",
+        )
+
+
+@router.get(
+    "/games/by-character",
+    summary="获取角色所属游戏名列表",
+    description="""
+根据角色名称，返回该角色可能所属的游戏名称列表。
+
+**说明：**
+- 由于不同游戏之间可能存在重名角色，因此会返回列表
+- 角色名称为中文
+- 如果角色不存在，返回 404
+""",
+    operation_id="cal_get_games",
+    responses={
+        200: {"description": "成功获取角色所属游戏名列表"},
+        404: {"description": "角色不存在"},
+        500: {"description": "服务器内部错误"},
+    },
+)
+async def get_games_by_character_name(
+    char: str = Query(..., description="角色名称"),
+):
+    try:
+        games: list = await services.get_games_by_character_name(char)
+        return {"char": char, "games": games}
+    except KeyError:
+        logger.error(f"角色 {char} 不存在")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"角色 {char} 不存在",
+        )
+    except Exception as e:
+        logger.error(f"获取角色{char}所属游戏列表异常: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal Server Error",

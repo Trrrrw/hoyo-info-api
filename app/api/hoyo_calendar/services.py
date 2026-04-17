@@ -26,6 +26,26 @@ async def get_event_data(game: str, data_type: str) -> list[dict]:
         raise KeyError(f"Event type {data_type} not found for game {game}")
     return game_data.get(data_type, [])
 
+async def get_games_by_character_name(char:str)->list:
+    json_data = getattr(data, "json", {})
+    result = []
+
+    for game, game_data in json_data.items():
+        # game_data: {"生日": [...]}
+
+        birthday_data = game_data.get("生日")
+        if not birthday_data:
+            continue
+
+        for item in birthday_data:
+            if item.get("name", "") == char:
+                result.append(game)
+                break  # 当前游戏命中就不用继续查了
+
+    if not result:
+        raise KeyError(f"Character {char} not found in any game")
+
+    return result
 
 async def get_birthday(game: str, char: str) -> dict:
     json_data = getattr(data, "json", {})
